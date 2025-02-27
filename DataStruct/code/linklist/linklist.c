@@ -31,15 +31,17 @@ int ListEmpty(LinkList listPtr){
         printf("错误，传入了空指针\n");
         return ERROR;
     }
+    printf("在检查空的函数中\n");
     
-    
-    LinkList ptr = listPtr->next;   //让ptr指向头节点
-    if (ptr->next==NULL)
+    printf("开始检查---\n");
+    if (listPtr->next==NULL)     //头节点的next域为空
     {
+        printf("退出检查空的函数，为空\n");
         return true;
     }
     else
     {
+        printf("退出检查空的函数,不为空\n");
         return false;
     }
     
@@ -149,37 +151,41 @@ Status ListInsert(LinkList* dobuleListPtr,int localtion,ElemType e){
         return ERROR;
     }
     
+   // printf("进入插入函数\n");
     LinkList listPtr = *dobuleListPtr;
+    LinkList workPtr = listPtr; //从头节点开始遍历
+    int pointOfworkPtr = 0;                  //代表了workPtr的位置，由于头结点认为是0位置，所以从0开始
 
-    if (ListEmpty(listPtr)==true)
+    while (workPtr != NULL && pointOfworkPtr< localtion-1)  //workPtr移动到localtion-1的位置，因为是要在localtion位置插入数据而不是localtion后插入数据
     {
-        printf("错误：线性表为空\n");
-        return ERROR;
-    }
-
-    LinkList newNode = (LinkList)malloc(sizeof(Node));//创建一个新节点
-    newNode->data = e;
-    newNode->next = NULL;    //先让新节点指针域为空，避免使用野指针
-    int i = 1;
-    LinkList workPtr,nextPtr;
-    workPtr = listPtr->next->next;
-
-    //实际上如果正常退出循环，workPtr应该是指向要插入位置的前一个元素
-    while (workPtr != NULL && i<localtion )
-    {
-        workPtr = workPtr->next;
-        i++;
+        workPtr = workPtr->next;  //移动workPtr
+        pointOfworkPtr++;
+        printf("在while循环中pointOfworkPtr=%d\n",pointOfworkPtr);
     }
     
-    if (workPtr == NULL || i>localtion)
+    if (workPtr == NULL && pointOfworkPtr < localtion-1)
     {
-        printf("要插入的位置超出长度");
+        printf("错误，位置超过长度\n");
         return ERROR;
     }
     
-    newNode->next = workPtr->next;   //把新节点插入原来的位置
+    printf("workPtr!=NULL || pointOfworkPtr>=localtion-1\t");
+    printf("pointOfworkPtr=%d\t",pointOfworkPtr);
+    
+    if (workPtr)
+    {
+        printf("workPtr!=NULL\n");
+    }
+    else{
+        printf("workPtr=NULL\n");
+    }
+    
+
+
+    LinkList newNode = (LinkList)malloc(sizeof(Node));
+    newNode->data= e;
+    newNode->next= workPtr->next;        //首先让新节点连接上插入位置前一个元素的后继
     workPtr->next = newNode;
-
     return OK;
 }
 
@@ -197,8 +203,68 @@ Status ListDelete(LinkList* doubleListPtr,int localtion,ElemType* e){
         return ERROR;
     }
     
-    
-    int i = 0;
+    int i = 1;
     LinkList listPtr = *doubleListPtr;
-    LinkList deletePtr = listPtr->next->next;   //
+    LinkList deletePtr = listPtr->next->next;   //指向第一个节点
+
+    while ( deletePtr != NULL && i < localtion)
+    {
+        deletePtr = deletePtr->next;
+        i++;
+    }
+
+    if (deletePtr->next != NULL)   //如果不是队尾
+    {
+        
+    }
+       
+}
+
+/**
+ * 功能：打印列表
+ * 参数：要打印的列表
+ * 返回值：无
+ */
+void printList(LinkList listPre){
+    LinkList printPre = listPre;
+    int i =0;
+    if (printPre->next==NULL)
+    {
+        printf("此时列表为空\n");
+    }else{ 
+        while (printPre!= NULL)
+        {
+            printf("Node%d->data=%d\n",i,printPre->data);
+            printPre = printPre->next;
+            i++;
+        }
+    }
+}
+
+
+int main(){
+    LinkList list = NULL;
+    ElemType e = 3;
+    int result=0;
+    LinkList printPre;
+  
+    if (InitList(&list)==OK)
+    {
+        printf("初始化成功\n");
+        printList(list);  
+    }
+    // ListInsert(&list,1,1);
+    // printList(list);
+    for(int i =0;i<3;i++)
+    {
+        ListInsert(&list,i+1,i);
+       // printList(list);
+    }
+    printf("插入3次后,线性表结果:\n");
+    printList(list);
+    printf("#########\n");
+   
+    ListInsert(&list,5,100);
+    printList(list);
+    free(list);
 }
