@@ -31,17 +31,17 @@ int ListEmpty(LinkList listPtr){
         printf("错误，传入了空指针\n");
         return ERROR;
     }
-    printf("在检查空的函数中\n");
+    // printf("在检查空的函数中\n");
     
-    printf("开始检查---\n");
+    // printf("开始检查---\n");
     if (listPtr->next==NULL)     //头节点的next域为空
     {
-        printf("退出检查空的函数，为空\n");
+       //printf("退出检查空的函数，为空\n");
         return true;
     }
     else
     {
-        printf("退出检查空的函数,不为空\n");
+        //printf("退出检查空的函数,不为空\n");
         return false;
     }
     
@@ -111,16 +111,24 @@ int LocateElem(LinkList listPtr,ElemType e){
         printf("错误:传递了空指针\n");
         return ERROR;
     }
-    
-    
     if (ListEmpty(listPtr)==true)
     {
         printf("错误：线性表为空\n");
         return ERROR;
     }
 
-    int localtion = 1;   //因为求得是位置，所以从1开始
-    
+    int localtion = 0;   //因为求得是位置，所以从1开始
+    LinkList workPtr = listPtr;
+    while (workPtr->next != NULL)
+    {
+        if (workPtr->data == e)
+        {
+            return localtion;
+        }
+        workPtr = workPtr->next;
+        localtion++;
+    }
+    return ERROR;
 }
 
 /**
@@ -226,18 +234,28 @@ int main(){
         printf("初始化成功\n");
         printList(list);  
     }
-    // ListInsert(&list,1,1);
-    // printList(list);
     for(int i =0;i<3;i++)
     {
         ListInsert(&list,i+1,i);
-       // printList(list);
+      
     }
     printf("插入3次后,线性表结果:\n");
     printList(list);
     printf("#########\n");
-   
-    ListInsert(&list,5,100);
-    printList(list);
+    for (int  i = 0; i < 3; i++)
+    {
+        ElemType testNumber=i;
+        result = LocateElem(list,testNumber);
+        printf("%d在第%d个元素\n",testNumber,result);
+    }
+
+    
+    result=LocateElem(list,4);
+    if (result == ERROR)
+    {
+        printf("4不在链表中");
+    }
+    
+
     free(list);
 }
