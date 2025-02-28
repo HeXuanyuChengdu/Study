@@ -120,21 +120,7 @@ int LocateElem(LinkList listPtr,ElemType e){
     }
 
     int localtion = 1;   //因为求得是位置，所以从1开始
-    LinkList workPtr = listPtr->next->next;//  指向第一个节点
-    while (workPtr != NULL)
-    {
-        if (workPtr->data == e)
-        {
-            return localtion;
-        }
-        workPtr = workPtr->next; //依次移动指针
-        localtion++;
-    }
-
-    if (workPtr == NULL)
-    {
-        return ERROR;
-    }   
+    
 }
 
 /**
@@ -156,31 +142,18 @@ Status ListInsert(LinkList* dobuleListPtr,int localtion,ElemType e){
     LinkList workPtr = listPtr; //从头节点开始遍历
     int pointOfworkPtr = 0;                  //代表了workPtr的位置，由于头结点认为是0位置，所以从0开始
 
+    /*这里workPtr去判断而不是workPtr->判断，实现了允许在已有位置后面一位插入*/
     while (workPtr != NULL && pointOfworkPtr< localtion-1)  //workPtr移动到localtion-1的位置，因为是要在localtion位置插入数据而不是localtion后插入数据
     {
         workPtr = workPtr->next;  //移动workPtr
         pointOfworkPtr++;
-        printf("在while循环中pointOfworkPtr=%d\n",pointOfworkPtr);
     }
     
-    if (workPtr == NULL && pointOfworkPtr < localtion-1)
+    if (workPtr == NULL )//由于头结点的存在，所以即使插入第一个位置也不满足条件
     {
         printf("错误，位置超过长度\n");
         return ERROR;
     }
-    
-    printf("workPtr!=NULL || pointOfworkPtr>=localtion-1\t");
-    printf("pointOfworkPtr=%d\t",pointOfworkPtr);
-    
-    if (workPtr)
-    {
-        printf("workPtr!=NULL\n");
-    }
-    else{
-        printf("workPtr=NULL\n");
-    }
-    
-
 
     LinkList newNode = (LinkList)malloc(sizeof(Node));
     newNode->data= e;
