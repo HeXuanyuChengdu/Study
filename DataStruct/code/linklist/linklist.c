@@ -28,20 +28,20 @@ int ListEmpty(LinkList listPtr){
     
     if (listPtr == NULL)
     {
-        printf("错误，传入了空指针\n");
-        return ERROR;
+        printf("传入了空指针,视作链表为空\n");
+        return OK;
     }
     // printf("在检查空的函数中\n");
     
     // printf("开始检查---\n");
     if (listPtr->next==NULL)     //头节点的next域为空
     {
-       //printf("退出检查空的函数，为空\n");
+     //  printf("退出检查空的函数，为空\n");
         return true;
     }
     else
     {
-        //printf("退出检查空的函数,不为空\n");
+       // printf("退出检查空的函数,不为空\n");
         return false;
     }
     
@@ -55,21 +55,20 @@ int ListEmpty(LinkList listPtr){
 Status ClearList(LinkList* doubleListPtr){
     if (doubleListPtr==NULL)
     {
-        printf("错误，传入了空指针\n");
+        printf("传入的是空指针!\n");
         return ERROR;
     }
-    
-    LinkList deletePtr,nextPtr;
     LinkList listPtr = *doubleListPtr;
-    deletePtr = listPtr->next->next;   //指向头节点的下一个节点，即真正的第一个节点
+    LinkList deletePtr,nextPtr;
+    deletePtr = listPtr; 
     
     while (deletePtr != NULL)
     {
-        nextPtr = deletePtr->next;
+        nextPtr = deletePtr->next;   //先暂存后续
         free(deletePtr);
-        deletePtr = nextPtr;     //让deletePtr指针移动到下一个元素
+        deletePtr = nextPtr;
     }
-
+    *doubleListPtr = NULL ;  //完成清空后将头结点设置为空代表链表消失了
     return OK;
 }
 
@@ -86,14 +85,20 @@ Status GetElem(LinkList listPtr,int localtion,ElemType* e){
         printf("错误：线性表为空\n");
         return ERROR;
     }
-
-    LinkList workPtr = listPtr->next->next;   //指向第一个节点
+    LinkList workPtr = listPtr;
+    int pointOfworkPtr = 0;
     
-    for (int  i = 0; i < localtion; i++)
+    while (workPtr != NULL && pointOfworkPtr < localtion)   //从头结点开始遍历，直到到达定位的位置或者workPtr为空时退出循环
     {
-        workPtr = workPtr->next;           //移动工作指针
+        workPtr = workPtr->next;
+        pointOfworkPtr++;
     }
     
+    if(workPtr == NULL)   //如果workPtr =null 证明移动到了链表的末尾的next域，否则即使localtion指定链表最后一个元素workPtr也停在最后一个元素
+    {
+        return ERROR;
+    }
+
     *e = workPtr->data;
     return OK;
 }
@@ -183,22 +188,57 @@ Status ListDelete(LinkList* doubleListPtr,int localtion,ElemType* e){
         printf("错误，传入了空指针\n");
         return ERROR;
     }
-    
-    int i = 1;
-    LinkList listPtr = *doubleListPtr;
-    LinkList deletePtr = listPtr->next->next;   //指向第一个节点
-
-    while ( deletePtr != NULL && i < localtion)
+    if (localtion < 1)
     {
-        deletePtr = deletePtr->next;
-        i++;
+        printf("错误，试图删除小于1的位置\n");
+        return ERROR;
     }
-
-    if (deletePtr->next != NULL)   //如果不是队尾
+    LinkList listPtr = *doubleListPtr;
+    LinkList deletePtr,frountPtr;
+    frountPtr = listPtr;
+    int pointOffrountPtr = 0;  //从头节点开始
+    
+    //移动到要删除的元素的前一个元素位置
+    while (deletePtr != NULL && pointOffrountPtr < localtion-1)
     {
+        frountPtr = frountPtr->next;
+        pointOffrountPtr++;
+    }
+    
+    //删除的位置超出了最后一位置的元素
+    if (frountPtr == NULL)
+    {
+        return ERROR;
+    }
+    
+    deletePtr = frountPtr->next;  //指向真正要删除的元素   
+    frountPtr->next = deletePtr->next;  //将要删除的元素的后继交给它的前驱
+    *e = deletePtr->data;
+    free(deletePtr);
+    return OK;
+}
+
+/**
+ * 功能：获取线性表中的元素个数
+ * 参数:要查询的线性表
+ * 返回值：线性表的长度，若为空则返回0
+ */
+int ListLength(LinkList list){
+    int count = 0;  //对元素个数进行计数
+    LinkList workPtr = list;   //workPtr指向头结点
+    if (ListEmpty(list) == OK)
+    {
+        return 0;
+    }else{
+        while (workPtr->next != NULL)    //当指针域为空，则代表遍历到了线性表中最后一个元素，即使对于第一个元素也是这样
+        {
+            count++;   //先计数，再移动
+            workPtr = workPtr->next;
+        }
+        return count;
         
     }
-       
+    
 }
 
 /**
@@ -223,6 +263,7 @@ void printList(LinkList listPre){
 }
 
 
+
 int main(){
     LinkList list = NULL;
     ElemType e = 3;
@@ -242,20 +283,62 @@ int main(){
     printf("插入3次后,线性表结果:\n");
     printList(list);
     printf("#########\n");
+   
+    result = ListLength(list);
+    printf("此时链表中的元素个数:%d\n",result);
+   
     for (int  i = 0; i < 3; i++)
     {
         ElemType testNumber=i;
         result = LocateElem(list,testNumber);
-        printf("%d在第%d个元素\n",testNumber,result);
+        printf("查询结果：%d在第%d个元素\n",testNumber,result);
     }
-
+    
     
     result=LocateElem(list,4);
     if (result == ERROR)
     {
-        printf("4不在链表中");
+        printf("查询结果：4不在链表中\n");
     }
     
+   for (int i = 0; i < 3; i++)
+   {
+        result = GetElem(list,i+1,&e);
+        if (result == OK)
+        {
+            printf("获取结果：第%d个位置的元素是%d\n",i+1,e);
+        }     
+   }
 
+   result = GetElem(list,4,&e);
+   if (result == OK)
+   {
+        printf("第4个元素是%d\n",e);
+   }else{
+        printf("第4个位置没有元素\n");
+   }
+   
+    for (int  i = 0; i < 2; i++)
+    {
+        result = ListDelete(&list,i+1,&e);
+        if (result == OK)
+        {
+        printf("成功删除了第%d个位置的元素:%d\n",i+1,e);
+        printf("此时，链表中的元素为:\n");
+        printList(list);
+        }else{
+            printf("删除失败\n");
+        }
+    }
+    
+    printf("删除结束后,链表的结果是:\n");
+    printList(list);
+    
+    ClearList(&list);
+    if (ListEmpty(list) == true)
+    {
+        printf("清空成功\n");
+    }
+        
     free(list);
 }
