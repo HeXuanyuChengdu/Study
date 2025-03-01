@@ -262,106 +262,83 @@ void printList(LinkList listPre){
     }
 }
 
-// /**/
-// /*
-// int main(){
-//     LinkList list = NULL;
-//     ElemType e = 3;
-//     int result=0;
-//     LinkList printPre;
+
+
+int main(){
+    LinkList list = NULL;
+    ElemType e = 3;
+    int result=0;
+    LinkList printPre;
   
-//     if (InitList(&list)==OK)
-//     {
-//         printf("初始化成功\n");
-//         printList(list);  
-//     }
-//     /*
-//     for(int i =0;i<3;i++)
-//     {
-//         ListInsert(&list,i+1,i);
+    if (InitList(&list)==OK)
+    {
+        printf("初始化成功\n");
+        printList(list);  
+    }
+    for(int i =0;i<3;i++)
+    {
+        ListInsert(&list,i+1,i);
       
-//     }
-//     printf("插入3次后,线性表结果:\n");
-//     printList(list);
-//     printf("#########\n");
-//     */
-//    /*
-//     result = ListLength(list);
-//     printf("此时链表中的元素个数:%d\n",result);
+    }
+    printf("插入3次后,线性表结果:\n");
+    printList(list);
+    printf("#########\n");
    
-//     for (int  i = 0; i < 3; i++)
-//     {
-//         ElemType testNumber=i;
-//         result = LocateElem(list,testNumber);
-//         printf("查询结果：%d在第%d个元素\n",testNumber,result);
-//     }
-    
-    
-//     result=LocateElem(list,4);
-//     if (result == ERROR)
-//     {
-//         printf("查询结果：4不在链表中\n");
-//     }
-    
-//    for (int i = 0; i < 3; i++)
-//    {
-//         result = GetElem(list,i+1,&e);
-//         if (result == OK)
-//         {
-//             printf("获取结果：第%d个位置的元素是%d\n",i+1,e);
-//         }     
-//    }
-
-//    result = GetElem(list,4,&e);
-//    if (result == OK)
-//    {
-//         printf("第4个元素是%d\n",e);
-//    }else{
-//         printf("第4个位置没有元素\n");
-//    }
+    result = ListLength(list);
+    printf("此时链表中的元素个数:%d\n",result);
    
-//     for (int  i = 0; i < 2; i++)
-//     {
-//         result = ListDelete(&list,i+1,&e);
-//         if (result == OK)
-//         {
-//         printf("成功删除了第%d个位置的元素:%d\n",i+1,e);
-//         printf("此时，链表中的元素为:\n");
-//         printList(list);
-//         }else{
-//             printf("删除失败\n");
-//         }
-//     }
+    for (int  i = 0; i < 3; i++)
+    {
+        ElemType testNumber=i;
+        result = LocateElem(list,testNumber);
+        printf("查询结果：%d在第%d个元素\n",testNumber,result);
+    }
     
-//     printf("删除结束后,链表的结果是:\n");
-//     printList(list);
     
-//     ClearList(&list);
-//     if (ListEmpty(list) == true)
-//     {
-//         printf("清空成功\n");
-//     }
-//     */ 
-//      /*
-//     result = GetElem(list,4,&e);
-//     if (result == OK)
-//     {
-//         printf("第4个元素是%d\n",e);
-//     }else{
-//         printf("查询失败");
-//     }
-//     */
+    result=LocateElem(list,4);
+    if (result == ERROR)
+    {
+        printf("查询结果：4不在链表中\n");
+    }
+    
+   for (int i = 0; i < 3; i++)
+   {
+        result = GetElem(list,i+1,&e);
+        if (result == OK)
+        {
+            printf("获取结果：第%d个位置的元素是%d\n",i+1,e);
+        }     
+   }
 
-//     ListInsert(&list,1,1);
-//     printList(list);
-//     result = GetElem(list,2,&e);
-//     if (result == OK)
-//     {
-//         printf("第二位置元素是%d\n",e);
-//     }else{
-//         printf("查询失败");
-//     }
+   result = GetElem(list,4,&e);
+   if (result == OK)
+   {
+        printf("第4个元素是%d\n",e);
+   }else{
+        printf("第4个位置没有元素\n");
+   }
+   
+    for (int  i = 0; i < 2; i++)
+    {
+        result = ListDelete(&list,i+1,&e);
+        if (result == OK)
+        {
+        printf("成功删除了第%d个位置的元素:%d\n",i+1,e);
+        printf("此时，链表中的元素为:\n");
+        printList(list);
+        }else{
+            printf("删除失败\n");
+        }
+    }
     
-//     free(list);
-// }
-// */
+    printf("删除结束后,链表的结果是:\n");
+    printList(list);
+    
+    ClearList(&list);
+    if (ListEmpty(list) == true)
+    {
+        printf("清空成功\n");
+    }
+        
+    free(list);
+}
