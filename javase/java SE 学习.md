@@ -1408,3 +1408,525 @@ Java中实现的位运算：
 - 内存敏感场景，如嵌入式系统或大规模数据处理
 
 #### 3.5.11 括号与运算符优先级
+
+| 优先级 | 运算符                                              | 结合性   |
+| ------ | --------------------------------------------------- | -------- |
+| 1      | []  .   ()                                          | 从左向右 |
+| 2      | ! ~ ++ -\- +(表示正)  -（表示负）(强制类型转换) new | 从右向左 |
+| 3      | \* /  %                                             | 从左向右 |
+| 4      | +  -                                                | 从左向右 |
+| 5      | << >> >>>                                           | 从左向右 |
+| 6      | ==  !=                                              | 从左向右 |
+| 7      | &                                                   | 从左向右 |
+| 8      | ^                                                   | 从左向右 |
+| 9      | \|                                                  | 从左向右 |
+| 10     | &&                                                  | 从左向右 |
+| 11     | \|\|                                                | 从左向右 |
+| 12     | ？:                                                 | 从右向左 |
+| 13     | = += -= \*= /= %= &= \|= ^= <<= >>= >>>=            | 从右向左 |
+
+总结：
+
+优先级最高的是方法调用、括号
+
+之后是一元运算符(包括表示正负的+-)
+
+之后是算术运算 乘除>+-
+
+之后是移位运算
+
+之后是判断相等
+
+之后是位运算  与>异或>或
+
+之后是逻辑运算 与>或
+
+之后是三目运算
+
+最后是赋值运算
+
+
+
+### 3.6 字符串
+
+从概念上讲，字符串就是Unicode字符的集合
+
+从本质上讲，字符串是Java预定义类String的实例对象,String类属于Java标准库，不需要在源文件中额外引入
+
+每个双引号括起来的内容都是String的实例
+
+不能讲String理解成char的数组，如果从c语言角度思考，Java的字符串更像是：
+
+~~~c
+char * str = "字符串";
+~~~
+
+#### 3.6.1 子串
+
+String类的subString()可以从一个大的字符串中提取子串：
+
+~~~java
+String greeting = "Hello";
+String s = greeting.subString(0,3); //s = "Hel"
+~~~
+
+subString方法：
+
+- String subString(int beginIndex)
+- String subSrting(int beginIndex,int endIndex)
+- 返回一个新的字符串，这个字符串包含从beginIndex到字符串末尾，或者endIndex-1的所有代码
+- 这个方法很容易得到字符串长度，length = endIndex-beginIndex
+
+#### 3.6.2 拼接
+
+Java语言使用+来来连接两个字符串，用于组成一个新的字符串
+
+新的字符串完全按照拼接时的顺序：
+
+~~~java
+String str = "Woshi";
+String name = "Xiaoming";
+String introduce = str+name; //introduce = "WoshiXiaoMing"
+~~~
+
+可以讲任意一个非字符串的值与字符串使用+拼接，会自动转换成字符串
+
+实际上，任何一个Java对象都可以转换成字符串
+
+如果希望连接多个字符，并增加一个分割符，可以使用静态的String.join()方法
+
+~~~java
+String all = String.join("/","S","M","L","XL");//all = "S/M/L/XL"
+~~~
+
+在 Java 11中，有一个动态repeat方法用来重复字符串
+
+~~~java
+String repeated = "Java".repeat(3); //repeted = "JavaJavaJava"
+~~~
+
+#### 3.6.3 字符串不可变
+
+String类没有提供任何方法来对字符串进行修改，但可以修改字符串变量的值
+
+例：
+
+~~~Java
+ String str = “Hello” ;//字符串“Hello”就一定没有办法修改
+ str  = str.subString(0,3)+"p!"； //str = "Help!"
+~~~
+
+点类似于c语言中的指针与结构体的关系，可以让指针指向不同的结构体，但作为字符串的那一块结构体java不允许修改
+
+~~~c
+//java 中修改字符串变量类似于以下操作：
+char* greeting = "Hello";
+char* temp = (char*)malloc(sizeof(char)*6);
+strncpy(temp,greeting,3);
+strncpy(temp+3,"p!",3);
+greeting = temp;
+~~~
+
+#### 3.6.4 检测字符串是否相等
+
+可以使用equals方法检测两个字符串是否相等
+
+s.equals(t);
+
+相等返回true,否则返回false
+
+这里的s和t可以是字符串变量，也可以是字符串字面量，如“hello”.equals(str)
+
+如果希望检查两个字符串是否相等并且忽略大小写，可以使用equalsIgnoreCase方法，如”Hello“.equalsIgnoreCase(“hello”);
+
+不能使用 ==运算符检测两个字符串是否相等
+
+因为 == 不会比较字符串是否存储在同一个位置，而不是去比较字符串的内容
+
+如果字符串真的在同一位置上，那么理论上它们确实相等
+
+但是JVM中，只会共享字符串字面量，不会共享+或subString（）等生成的新字符串
+
+也就是说：
+
+~~~java
+String greeting = "Hello";
+if(greeting == "Hello")...     //这个有可能是真的
+if(greeting.subString(0,3) == "Hel")   //这个判定很可能并不能通过
+~~~
+
+这样的Bug是编译器无法检查的
+
+因此，Java中判断字符串相等应该始终调用equals方法
+
+（还有一个compareTo方法，类似于c语言中的strcmp方法）
+
+~~~java
+if(greeting.compaerTo("Hello") == 0)
+//按照字典顺序，如果greeting位于"Hello"之前，返回一个负数，如果在"Hello之后返回一个正数，如果相等返回0"
+~~~
+
+虽然这个方法也能判断字符串相等，但看起啦确实不如equals清晰
+
+#### 3.6.5 空串与null
+
+空串也是一种字符串，有它的长度0，和内容（空）
+
+但是，String类变量可以存储一个特殊值null，表示这个变量目前不与任何对象关联，不能在null值上调用方法
+
+检测一个字符串是否是null，可以使用 ==
+
+if(str == null)
+
+但是，如果希望检测一个字符串既不是null也不是空串，就要配合equals方法：
+
+if(str != null && !str.equals(“”))
+
+#### 3.6.6 字符串长度与代码单元与码点
+
+Java字符串是char类型的值的序列
+
+char类型变量存储的是Unicode的代码单元，BMP字符只需要一个代码单元，而辅助平面的字符需要两个char类型，也就是两个代码单元
+
+==String的length方法返回的也是是字符串代码单元个数==
+
+想要得到严格意义上的字符个数，也就是码点的个数，需要调用codePointCount方法
+
+~~~java
+int cpCount = greeting.codePointCount(0,greeting.length());//返回0到greeting.length()-1之间的码点个数
+~~~
+
+想得到第i个码点，可以使用以下语句：
+
+~~~java
+int index = greeting.offsetByCodePoints(0,i);//返回从0开始，i个码点后的码点索引
+int cp = greeting.codePointAt(index);//返回给定位置的码点
+~~~
+
+如果希望得到一整个字符串的码点，可以使用codePoints方法，它会生成一个int值的流，每一个int值对应一个码点，然后使用toArray()转换成数组
+
+~~~java
+int[] codePoints = str.codePoints().toArray();
+
+//反过来也可以把一个码点数组转换成字符串
+String str2 = new String(codePoints,0,codePoints.length);
+~~~
+
+总之，要始终牢记一个原则，对于字符类型的数据，都建议用String类型处理而不是char类型。
+
+#### 3.6.7 构建字符串
+
+有时，如果需要多次的用短的字符串构建新的字符串，例如，按键或者从文件中读取单词
+
+使用拼接的方法效率比较低，每次拼接都会创造一个新的字符串对象
+
+可以使用StringBuilder (称为字符串构建器)类来处理需要频繁修改的情况：
+
+~~~java
+StringBuilder builder = new StringBuilder();    //先构建一个新的字符串构建器
+//当每次需要添加时，调用append方法
+builder.append(ch);   //可以添加单个字符
+builder.append(str);  //可以添加字符串
+//当构建完成时，需要调用toString()方法将StringBuilder类对象转换成String对象
+String result = builder.toSting();
+~~~
+
+
+
+注：Sting类和StringBulider类都有很多方法，有些比较常用，有些可能不经常用但关键的时候可能非常需要这些方法。
+
+死记硬背没有意义，要多查阅Java的API解释文档
+
+
+
+#### 3.6.8 文本块
+
+Java 15新增加了文本块机制
+
+主要用来实现跨越多行的字符串
+
+语法：
+
+~~~java
+String text = """
+Hello
+world
+""";
+~~~
+
+使用一对三个双引号标记。
+
+文本块开头三个双引号后需要换行，这个换行符不计入字符串的内容，之后的换行符都会被视作字符串的真实内容
+
+最终，text的值具体为：“Hello\nworld\n”
+
+文本块比较适合编写其他语言的代码如SQL或者HTML
+
+常规字符串中的转义序列在文本块中也能使用
+
+文本块有一个单独的转义序列\，表示忽略掉这个换行符
+
+比如：
+
+~~~java
+"""
+Hello \
+goodebye.
+""";
+~~~
+
+等同于“Hellogoodebye”
+
+文本块会标准化结束符，删除末尾的空白符，并把windows系统的\r\n换行符简化为\n
+
+对于缩进，也就是放在文字前面的空白符，文本块会删除公共空白符(就是作为一个语句本身的缩进)然后保留内部的
+
+
+
+### 3.7 输入与输出
+
+#### 3.7.1读取输入
+
+在Java中，将输出打印到标准输出流(控制台窗口)非常简单，只需要调用System.out.println
+
+但读取标准输入流System.in稍微要复杂一些
+
+~~~java
+//首先，要创建一个与标准输入流关联的Scanner对象
+Scanner in = new Scanner(System.in);
+//然后，使用Scanner的各种方法读取输入
+
+String name = in.nextLine();  //读取一行输入
+String firstName = in.next(); //读取一个单词，以空格作为分隔
+int age = in.nextInt(); //读取一个整数
+double monery = in.nextDouble();//读取一个浮点数
+~~~
+
+注：Scanner类属于java.util包，并不在Java标准库，使用Scanner类需要先用import引入
+
+Scanner类的输入是可见的，所以不适合从控制台读取密码
+
+想要读取密码，可以使用Console类
+
+~~~java
+Console cons = System.console();
+String username = cons.readLine("User name:");
+char[] passwd = cons.readPassword("Password:");
+~~~
+
+为了安全起见，将密码存储在char数组中而不是字符串中，完成对密码处理后，应该马上用一个填充数组覆盖数组元素
+
+使用Console对象处理输入不如Scanner类对象方便，Console对象必须一次读取一行输入，而且没有办法读取单个单词或者整数等
+
+#### 3.7.2 格式化输出
+
+为了控制字符的输出格式，Java中也实现了printf方法，用法与c语言中基本一致，都是用格式说明符占位，然后跟参数的形式
+
+~~~java
+System.out.printf("Hello,%s",name);
+~~~
+
+格式说明符格式：
+
+%+参数索引(可选)+\$(可选)+标志+宽度(可选)+.+精度+转换字符
+
+参数索引：
+
+在printf方法中，可以使用\$指定参数的位置，即参数索引，这样即使参数顺序不同，也可以按照指定的顺序进行格式化
+
+~~~java
+public class PrintfExample {
+    public static void main(String[] args) {
+        System.out.printf("%2$d, %1$d, %3$d%\n", 10, 20, 30);
+    }
+}
+//输出： 20，10，30
+~~~
+
+%2$d→ 输出**第二个**参数（20）
+
+%1$d → 输出**第一个**参数（10）
+
+%3$d → 输出**第三个**参数（30）
+
+如果不使用\$，参数会按照默认顺序依次替换格式说明符
+
+标志：
+
+| 标志                    | 作用                 | 示例        |
+| ----------------------- | -------------------- | ----------- |
+| +                       | 打印正负号           | +333.3      |
+| 空格                    | 在正数前面加一个空格 | \|  333.3\| |
+| 0                       | 增加前导0            | 00333.3     |
+| -                       | 字段左对齐           | \|333.3  \| |
+| (                       | 将负数包在括号里     | (333.3)     |
+| ,                       | 增加分组分隔符       | 3,333.33    |
+| #(对于定点浮点数格式)   | 总是包含一个小数点   | 3333.       |
+| #(对于十六进制或八进制) | 总是包含前缀0X或0    | 0XCAF1      |
+| \$                      | 指定参数索引         |             |
+| <                       | 重复使用上一个参数   |             |
+
+<标志：重复使用上一个参数
+
+例如：
+
+~~~java
+public class PrintfExample {
+    public static void main(String[] args) {
+        System.out.printf("%d, %<o, %<x", 16);
+    }
+}
+//输出： 16,20,10
+~~~
+
+说明：
+
+%d   =>以十进制格式输出16
+
+%<0    => 以八进制格式重复上一个参数 16  结果是 20
+
+%<x    =>  以十六进制格式重复上一个参数 16  结果是 10
+
+
+
+转换字符：
+
+| 转换字符 | 类型                              | 示例       |
+| -------- | --------------------------------- | ---------- |
+| d        | 十进制整数                        | 159        |
+| x或X     | 十六进制整数                      | 9f         |
+| 0        | 八进制整数                        | 237        |
+| f或F     | 定点浮点数                        | 25.6       |
+| e或E     | 指数浮点数                        | 1.59e+01   |
+| g或G     | 通用浮点数 (输出e和f中较短的情况) |            |
+| a或A     | 十六进制浮点数                    | 0x1.fccdp3 |
+| s或S     | 字符串                            | hello      |
+| c或C     | 字符                              | H          |
+| b或B     | 布尔                              | true       |
+| h或H     | 散列码                            | 42628b2    |
+| %        | 百分号                            |            |
+
+可以多个标志组合控制，例如
+
+~~~java
+System.out.printf("%,.2f",1000.0/3.0)
+//输出 3,333.33
+~~~
+
+
+
+#### 3.7.3 文件输入与输出
+
+可以使用Scanner对象读取一个文件
+
+~~~java
+Scanner in = new Scanner(Path.of("mytext.txt"),StandardCharsets.UTF_8);
+~~~
+
+这里第一个参数指定文件的路径，必须要用Path.of来包含路径，否则Scanner会把输入的路径理解成一个字符串而不是你想读取的文件
+
+第二个参数指定读取文件的编码标准
+
+之后就可以用Scanner类的方法读取文件了
+
+想要写入文件，需要构造一个PrintWriter对象。
+
+~~~java
+PrintWriter out = new PrintWriter("myfile.txt",StandardCharsets.UTF_8);
+~~~
+
+构造时需要提供文件名和字符编码
+
+如果文件不存在，会创建这个文件。
+
+PrintWriter同样有print,println,printf方法
+
+
+
+### 3.8 控制流程
+
+Java可以使用条件语句和循环结构来确定控制流程
+
+#### 3.8.1 块作用域
+
+块 block ：由若干条Java语句组成，并用一对大括号括起来，块的主要作用是确定变量的作用域
+
+一个块中可以嵌套另一个块
+
+~~~java
+public static void main(String[] args){
+    int n;   //作用域是整个mian方法
+    {
+        int k;     //k的作用域只在这个大括号中
+    }
+}
+~~~
+
+注意：Java中不允许重定义变量，也就是说，内层块里面不不能声明和外层块中同名的变量。(c++中是可以的，内层定义会覆盖外层定义)
+
+可以在Java程序结构中原本只能放一条语句的地方放置块语句
+
+#### 3.8.2 条件语句
+
+Java中，条件语句的格式为：
+
+if(条件)语句
+
+条件必须用小括号括起来，当条件的值为true时，执行这个语句，这个语句也可以是块语句
+
+if常常搭配else
+
+if(条件){
+
+ ….
+
+}else{
+
+ …..
+
+}
+
+else表示if中条件不成立时才能执行的语句或块
+
+即使有多个if，else也只与最近的if组成一组
+
+~~~java
+if(x<=0)if(x==0) sign = 0; else sign =-1;
+~~~
+
+else与第二个if配对，只有x<0时sign才等于-1
+
+最好使用大括号让代码更加清晰
+
+也可以反复使用多个 if…else if …
+
+~~~java
+if(age >= 5){
+    ...
+}
+else if(age <5 && age >1){
+    ...
+}
+else if (age =<1){
+    .....
+}
+~~~
+
+注意，多个else if之间的条件应该是互斥的
+
+
+
+#### 3.8.3 循环
+
+while(条件) 语句
+
+while会在条件为真时执行语句，这里的语句可以是代码块
+
+每一次while循环都是先判断条件再执行，当条件变为false就会退出；如果一开始条件就是false，那么while一次也不会执行
+
+如果希望至少执行一次，可以使用do 语句 while(条件)
+
+do while 会先执行代码再进行循环
+
+#### 3.8.4 确定性循环
+
