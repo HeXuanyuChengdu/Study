@@ -1930,3 +1930,561 @@ do while 会先执行代码再进行循环
 
 #### 3.8.4 确定性循环
 
+for循环是支持迭代的一种通用结构循环
+
+Java中for循环语法差异不大
+
+格式：
+
+for(计数器初始化;循环条件;如何更新计数器){
+
+​		循环体
+
+}
+
+注意：只有当循环体执行完后才更新计数器
+
+Java允许在for循环的各个部分放置任意表达式
+
+但是一般规定3个部分应该保证对同一个计数器进行初始化、判断和更新
+
+注：
+
+1. 判断循环条件时应该格外注意判断浮点数相等的情况 
+
+~~~java
+for(double x = 0;x!=10;x+=0.1)......
+~~~
+
+  由于舍入误差和浮点数特性这很有可能变成一个死循环
+
+  因为二进制无法准确的表达0.1
+
+   所以x可能从9.999998突然变成10.000009
+
+2. 在循环体中声明的变量作用域只在循环体内部，因此如果希望在循环体之外使用循环计数器最终值等，就应该确保在循环体之外进行声明
+
+
+
+事实上，for循环只是while循环的简化形式，理论上，任何一个for循环都可以转换成while循环
+
+~~~java
+for(int i =0;i<10;i++){
+    System.out.println("hello");
+}
+//完全等价于
+int i = 0;
+while(i<10){
+    System.out.println("hello");
+    i++;
+}
+~~~
+
+
+
+例：利用for循环计算组合数：
+
+(组合数C（m,n）= m!/n!\*(m-n)!;排列P(m,n)=m!/(m-n)!)
+
+从1~50，50个数字中抽6个数抽奖：
+
+(50\*49\*48\*47\*46\*45)/(1\*2\*3\*4\*5\*6)
+
+步骤：
+
+1. 分析数学表达式
+
+2. 抽象出迭代原理  ：n个数抽K： n \* (n-1)\*…..\*(n-k+1)/1\*2\*.…*k
+
+3. 利用for循环计数器进行替代
+
+	~~~java
+	int result = 1;
+	for(int i=1;i<=k;i++){
+	    result = result*(n-i+1)/i;
+	}
+	~~~
+
+#### 3.8.5 多重选择：switch语句
+
+在处理一个表达式可能产生多个值时，使用ifelse控制有些笨拙，可以考虑switch语句，以及Java 14 引进的swtich表达式
+
+经典switch语句：
+
+~~~java
+int choice = ...;
+switch(choice){
+    case 1 :
+        ...;
+        break;
+    case 2:
+        ...;
+        break;
+    default:
+        ....;
+        break;
+}
+~~~
+
+switch语句从与选项值匹配的case执行，知道遇到一个break，或者执行到语句结束；
+
+如果没有匹配的case，则执行default标签
+
+如果我们担心自己遗漏了break导致多个case被执行，可以在编译代码时添加-Xlint:fallthing选项：
+
+~~~cmd
+javac -Xlint:fallthing wenjian.java
+~~~
+
+这样，如果某个分支缺少break语句，编译器就会给出警告
+
+这种不加break标签让多个case标签执行的行为，我们也称为直通行为 
+
+如果在编译器添加了上述选项，又确实希望某些switch语句执行这种直通行为，可以给外围方法添加一个@SuppressWarnings(“fallthing”)注解
+
+注解：为编译器或者处理Java源文件或类文件的工具提供信息的一种机制。
+
+在Java14中，引入了新的switch形式–switch表达式
+
+语法：
+
+~~~java
+int result = switch(xuanze){
+        case "Spring" -> 1;
+        case "Summer" ->2;
+        default -> 0;
+}
+~~~
+
+switch表达式不需要使用break就能避免直通行为发生
+
+不能在一个switch表达式中混用->和:
+
+switch表达式每一个分支都必须要产生一个值，如果希望在标签后不直接赋值而执行多条语句，就要使用{}和yield标签
+
+~~~java
+// switch 表达式中的代码块
+int num = 2;
+String result = switch (num) {
+    case 1 -> "One";
+    case 2 -> {
+        System.out.println("Processing...");
+        yield "Two";  // 需要用 yield 返回值
+    }
+    default -> "Unknown";
+};
+System.out.println(result);
+
+~~~
+
+这里，也并不是说必须显式的写出yield，只要确保{}里的语句能够产生一个具体的值，比如赋值语句
+
+例：
+
+~~~java
+switch(xuanze){
+        case "tiaojian1" ->{
+            System.out.println("tiaojian1对应的输出内容");
+            number = 1;
+        }
+    	case "tiaojian2","tiaojian3"->
+            number=2;
+        default ->
+            	number = -1;
+}
+~~~
+
+虽然上述的写法理论上没有错误，但是如果是每一个分支都是为一个变量赋值或方法调用然后计算值之类的，我们就应该把它优化成使用switch表达式对这个变量赋值
+
+~~~java
+int number = switch(xuanze){
+        case "tiaojian1" ->1;
+        case "tiaojian2","tiaojian3" ->2;
+        default -> -1;
+}
+~~~
+
+这样的写法代码更清晰，易读性更强
+
+同时，可以在switch表达式中抛出一个异常:
+
+~~~java
+default -> throw new IllegalArgumentException("异常的原因");
+~~~
+
+一般如果能实现switch表达式的环境，我们都应该使用switch表达式，switch表达式语法更清晰能避免遗漏break导致的直通行为。
+
+#### 3.8.6 Java中断控制流程语句
+
+Java中goto是保留字，但是Java不支持goto，不过Java支持一种带标签的break语句用来跳出嵌套循环。
+
+##### break
+
+break本身的作用是用于退出循环或者case语句
+
+但是不带标签的break只能跳出离break最近的一层循环
+
+~~~java
+public class TestBreakDemo {
+    public static void main(String[] args) {
+
+        int num = 5;
+        int result = 0;
+        int count = 0;
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                count++;
+                System.out.println("count=" + count);
+                result++;
+                if (result > num) {
+                    System.out.printf("循环结束,%d>%d\n", result, num);
+                    break;
+                }
+            }
+        }
+    }
+
+~~~
+
+分析：
+
+- 如果break能退出最外层循环，那么最终输出的结果应该是“循环结束，6>5”；
+- 如果break只退出最能层循环，那么当输出一次“循环结束，6>5”之后，外层循环还没有结束，i=1，会再次进入，count=7后，再次退出，i=2，最后退出循环
+- ![break跳出一层循环示意](示意图/break跳出一层循环示意.png)
+
+由此证明了break只能跳出离自己最近的一层循环。
+
+但是Java中支持给break添加标签的用法，可以跳出嵌套循环
+
+标签必须紧跟在想跳出的最外层循环之前，并且紧跟一个冒号：
+
+~~~java
+public class TestBreakDemo {
+    public static void main(String[] args) {
+
+        int num = 5;
+        int result = 0;
+        int count = 0;
+        good_bye:
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                count++;
+                System.out.println("count=" + count);
+                result++;
+                if (result > num) {
+                    System.out.printf("循环结束,%d>%d\n", result, num);
+                    break good_bye;
+                }
+            }
+        }
+    }
+~~~
+
+![break标签跳出多层循环](示意图/break标签跳出多层循环.png)
+
+###### continue
+
+与break类似，continue也会中断循环，但continue不会退出循环，而是回到最近的循环开始的位置
+
+### 3.9 大数
+
+如果基本的整数和浮点精度不满足需求，可以使用java.math包中的两个类BigInteger和BigDecimal
+
+这两个类可以处理包含任意长度数字 序列的数值
+
+BigInteger实现任意精度的整数运算
+
+BigDecimal实现任意精度的浮点数运算
+
+转换：
+
+使用静态的valueOf方法可以将一个普通的数转换为大数
+
+~~~java
+BigInteger a = BigInteger.valueOf(100);
+~~~
+
+对于更长的数，可以使用带字符串参数的字符串
+
+~~~java
+BigInteger reallyBig = new BigInteger("1111421232412353124342");
+~~~
+
+注：BigDecimal类应该始终使用带字符串的构造器，但是BigDecimal类的构造器会发生舍入误差，
+
+~~~java
+BigDecimal a = new BigDecimal(0.1);
+//可能得到一个值0.1000000000000321124678
+~~~
+
+不能使用常规的运算符操作大数对象
+
+需要内置的方法
+
+加法: add
+
+乘法：multiply
+
+~~~java
+BigDecimal c = a.add(b);  //c = a+b
+BigInteger d = c.multiply(b.add(BigInteger.valueOf(2))); // d = c*(b+2)
+~~~
+
+
+
+### 3.10 数组
+
+数组用来存储相同类型值的序列。
+
+#### 3.10.1 数组的声明
+
+数组是一种数据结构，存储同一类型的值，通过一个整型索引可以任意访问数组中的值
+
+声明时，需要指出数组类型，即元素类型+[]，然后再加上数组名
+
+int[] a;
+
+上述的语句只是声明了一个int[]类型的变量a
+
+想要真正的得到一个数组，应该使用new操作符初始化一个数组
+
+~~~java
+int[] a = new int [100];
+~~~
+
+这里的长度并不要求是常量，可以是变量
+
+数组的长度是不可变的，如果要经常改变数组的大小，就应该使用另一种数据结构——数组列表 array list。
+
+注：
+
+声明时可以写int[] a; 也可以写 int a[] ; 推荐第一种写法，这样可以将数据类型和变量名较为清晰的分开
+
+Java中，有创建并初始化数组的简写形式：
+
+~~~java
+int[] a = {1,2,3,4,5,6};
+~~~
+
+这种语法不需要使用new，也不需要指出数组的长度，同时最后一个元素也可以再加一个逗号，方便以后再添加新元素
+
+还可以声明匿名数组：
+
+~~~java
+new int[] {2,4,6,8,10};
+~~~
+
+这种语法主要用于重新初始化一个数组或者传递参数
+
+JVM仍然会为匿名数组分配内存空间(堆中)，当使用匿名数组的方法执行完毕后，JVM会自动回收它的内存空间
+
+~~~java
+a=new int[] {1,3,5,7,9};
+~~~
+
+Java中允许长度为0的数组
+
+比如编写一个结果为数组的方法，碰巧结果为空，可以构造一个长度为0的数组，这并不同于null
+
+#### 3.10.2 访问数组元素
+
+数组元素编号从0开始
+
+最后一个合法索引的值=数组长度-1
+
+想要获得数组长度，即元素个数，可以直接调用array.length
+
+想要打印数组中所有值，可以使用Arrays类的toString方法，这个方法会返回一个包含数组元素的字符串，这些元素会包括在[]中并被逗号分隔
+
+例：
+
+~~~java
+int[] a = {2,4,6,8,10};
+String strArray = Arrays.toString(a);
+//strArray="[2,4,6,8,10]"
+~~~
+
+
+
+当创建一个数值类型数组时，所有元素都会初始化为0；boolean型数组初始化为false;对象类型的数组则直接初始化为null
+
+例如：
+
+~~~java
+String[] names = new String[10];
+~~~
+
+创建一个可以包含10个字符串的数组，每个字符串当前都是null
+
+如果希望是空串而不是null,则必须为元素提供空串:
+
+~~~java
+for(int i =0;i<names.length;i++){
+    names[i] = "";
+}
+~~~
+
+#### 3.10.3 foreach 循环
+
+foreach循环用来依次处理数组，或任何其他元素集合中的每一个元素，而不必去考虑索引值
+
+Java中实现了这种循环，但是没有使用foreach关键字，直接是for关键字，具体格式为:
+
+for(变量：集合)语句
+
+这里的集合必须是一个数组或者实现了Iterable接口的类对象
+
+比如：
+
+~~~java
+int[] a = {2,4,6,8,10};
+for(int elem :a){
+    System.out.println(e);
+}
+~~~
+
+会输出a中的每一个元素
+
+注意：foreach循环处理的是集合中所有元素，如果不想遍历全部元素，还是必须使用for循环
+
+理论上foreach循环可以转换成for循环，但对于这种需要遍历集合中每一个元素的情况，foreach更加简洁，不需要关注起始和终止条件
+
+#### 3.10.4 数组拷贝
+
+如果直接将一个数组变量赋值给另一个数组变量，会让两个数组变量指向同一个数组
+
+~~~java
+int[] a = {1,2,3,4,5};
+int[] b = a;
+b[0] = 100;
+//此时a[0] = 100，a和b实际上都是表示的同一个数组
+~~~
+
+如果确实希望将一个数组的所有值拷贝到一个新的数组中，应该使用Arrays类的copyOf方法
+
+~~~java
+int[] a = {1,2,3,4,5};
+int[] copya = Arrays.copyOf(a,a.length);
+~~~
+
+其中，第二个参数是新数组的长度。
+
+这个操作可以用来扩大数组的大小，当新数组更长时：
+
+- 如果新数组是数值型，新的元素会填入0
+- 如果是boolean类型，会填入false
+- 如果新数组更短，就只会拷贝前面的值
+
+Java中的数组比起C中的数组，更类似于C中的数组指针
+
+但是Java中没有指针运算，不饿能用数组名+1这种写法得到下一个元素
+
+#### 3.10.5 命令行参数
+
+main方法中的String[] args参数，会接收一个字符串，就是命令行上指定的参数
+
+~~~java
+public class TestArgsDemo {
+public static void main(String[] args) {
+    if(args.length == 0 || args[0].equals("-h")) {
+        System.out.print("hello");
+    }else if(args[0].equals("-g")) {
+        System.out.print("goodbye");
+    }
+    for(int i = 1; i < args.length; i++) {
+        System.out.printf("%s",args[i]);
+    }
+    System.out.println("!");
+}
+
+}
+~~~
+
+![使用命令行参数执行java类](示意图/使用命令行参数执行java类.png)
+
+注：
+
+如果希望在idea中运行Java类时添加命令行参数，可以使用快捷键alt+shift+f10，选择编辑配置，打开后在应用程序的实参(Program arguments)字段中输入参数
+
+![idea运行Java类添加命令行参数](示意图/idea运行Java类添加命令行参数.png)
+
+
+
+以上可以看出，args里面的元素按照空格分隔保存每一个参数
+
+Java中程序名并不存储在args数组中
+
+
+
+#### 3.10.6 数组排序
+
+数组排序可以调用Arrays类的sort方法
+
+~~~java
+int[] a = new int [100];
+...
+Arrays.sort(a);
+~~~
+
+这个方法使用了优化的快速排序算法，对于大多数数据集都很高效(这个方法没有返回值)
+
+同时，可以使用binarySearch方法对数组查找:
+
+~~~java
+static int binarySearch(xxx[]a,xxx v)
+static int binarySearch(xxx[]a,int start,int end,xxx v)
+~~~
+
+这个方法会使用二分法查找a中是否有元素v,如果找到返回，返回元素的索引，否则返回一个负数r，-r-1是元素v按照原本顺序应该插入的位置
+
+#### 3.10.7 多维数组与不规则数组
+
+多维数组使用多个索引访问一个数组元素，主要用于存储表格等较复杂的排列方式
+
+例如，二维数组，也称矩阵的声明：
+
+~~~java
+int[][] magicSquare = {
+    {1,2,3,4,5},
+    {6,7,8,9,10},
+    {11,12,13,14,15}
+};
+~~~
+
+同样，每个维度的索引都是从0开始计数
+
+但是实际上，Java并没有严格意义的二维数组，它的本质其实是一种元素为数组的一维数组
+
+构造这种数组时并没有要求每一个数组的长度必须一致。
+
+例如，存储这样的结构：
+
+1，
+
+1，2
+
+1，2，3
+
+1，2，3，4
+
+声明这样的数组时首先需要明确指出行数
+
+~~~java
+int[][] odds = new int[4];
+~~~
+
+之后，分别分配每一行
+
+~~~java
+for(int row=0;row<4;row++){
+   	for(int column=0;colum<odds[row].length;colum++){
+        odds[row][column] = colum+1;
+    }
+}
+~~~
+
+完成创建后，可以直接利用索引来访问任意元素 odds[1]\[1]会输出第二行第二个元素
+
+
+
+## 额外补充 正则表达式
