@@ -2877,3 +2877,137 @@ this is my email 123456@example.com
 
 ### 九.环视
 
+环视可以理解为一种条件，表示环视的正则表达式也会去匹配字符，但匹配到符合条件的字符后并不会返回这些值
+
+相当于给自己的正则表达式上了一种条件，有能匹配环视字符的字符才继续匹配
+
+环视分为向前查看和向后查看
+
+#### 1.向前查看
+
+向前查看的语法是
+
+本来要匹配的内容(?=要满足的条件)
+
+例子：“https://baidu.com    http://example.com  ftp://ftp.forta.com”
+
+我们希望从一系列的URL种匹配出协议名，又不希望包含:
+
+模式：.+(?=:)
+
+结果：“==http==s://baidu.com    ==http==://example.com  ==ftp==://ftp.forta.com”
+
+解释：
+
+- .+匹配任意字符1次以上，同时需要满足在.+的字符串后面要有一个字符:
+- 从：字符的角度相对来说，就像从:向前面去匹配了，所以称为向前查看
+- 同时这种虽然匹配但不返回结果的行为，也称为对文本的无消耗
+
+#### 2.向后查看
+
+类似于向前查看，主要是查看已经匹配文本之前的内容
+
+语法:
+
+(?>=条件)已经匹配的字符串
+
+例如，一份购物清单:
+
+item1:\$152.4
+
+item2:\$990.33
+
+item3:\$500.0
+
+我们希望匹配到物品的具体金额同时不希望包含美元符号
+
+可以使用向后查看来进行准确定位：
+
+模式：(?>=\\$)[\d\\.]+
+
+这里向后查看限制了我们之后返回内容的模式只能去匹配开头有一个美元符号的字符。
+
+### 十.Java中使用正则表达式
+
+Java中主要使用java.util.regex包中的Pattern类和Matcher类来支持正则表达式的处理。
+
+Pattern主要用于编辑正则表达式
+
+而Matcher类主要用于充当匹配器的逻辑
+
+#### 1.匹配字符串
+
+例：
+
+~~~java
+import java.util.regex.*;
+
+public class RegexExample1 {
+    public static void main(String[] args) {
+        String text = "hello123";
+        String regex = "\\w+\\d+"; // 匹配字母+数字的组合
+
+        Pattern pattern = Pattern.compile(regex); // 编译正则表达式
+        Matcher matcher = pattern.matcher(text); // 创建匹配器
+
+        if (matcher.matches()) {
+            System.out.println("匹配成功！");
+        } else {
+            System.out.println("匹配失败！");
+        }
+    }
+}
+
+~~~
+
+注意：在Java中编写正则表达式时，对于元字符必须要使用\\\，因为需要第一个转义符来转移元字符本身自带的\\。
+
+#### 2.替换字符串
+
+例：
+
+~~~java
+import java.util.regex.*;
+
+public class RegexExample2 {
+    public static void main(String[] args) {
+        String text = "邮箱1：user1@example.com，邮箱2：user2@test.com";
+        String regex = "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"; // 匹配Email
+
+        String result = text.replaceAll(regex, "[邮箱已隐藏]");
+        System.out.println(result);
+    }
+}
+
+~~~
+
+这例匹配字符串的模式稍微有些复杂，主要是考虑到有些邮箱地址可能是abc.edf@example.somthing.com之类的格式
+
+#### 3.Java中使用正则表达式的意义
+
+在 Java 后端开发中，正则表达式具有广泛的应用：
+
+1. 数据校验：
+	- 验证 **邮箱**、**手机号**、**身份证号**、**密码强度** 等。
+2. 文本处理：
+	- 处理 **日志文件**、**HTML/XML** 解析、**过滤敏感词** 等。
+3. 字符串提取：
+	- 从文本中提取 **URL、IP 地址、日期** 等特定格式数据。
+4. 日志分析和搜索：
+	- 在 **日志系统** 或 **监控系统** 中，用正则匹配 **错误信息**，便于分析问题。
+
+在高效处理结构化文本、数据过滤和安全控制方面，正则表达式是一种 **简洁、强大** 的工具，在 Java 后端开发中至关重要。
+
+但是也要注意，本身正则表达式只是一种工具，也有自己的缺陷。
+
+比如:
+
+- 面对比较复杂的语法(嵌套的HTML、XML、JSON)时正则表达式很难解析。
+
+- 处理超长字符串或大数据时光靠正则表达式效率也会很低
+
+- 正则表达式本身比较晦涩，会降低自己的代码可读性，可能的情况下，我们都应该优先考虑字符串处理方法
+
+	
+
+总而言之，我们应该利用正则表达式，而不是反过来被这种工具消耗大量的精力。
