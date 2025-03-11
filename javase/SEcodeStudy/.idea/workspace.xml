@@ -4,18 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7bd0ce90-2b4d-420d-8256-8aec7978620b" name="更改" comment="">
-      <change afterPath="$PROJECT_DIR$/FormatPrintStudy.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../DataStruct/code/hello.c" beforeDir="false" afterPath="$PROJECT_DIR$/../../DataStruct/code/hello.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../DataStruct/code/sqlist/main.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../DataStruct/code/sqlist/sqlist.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../DataStruct/code/sqlist/sqlistTest.exe" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../DataStruct/code/sqlist/unionlist.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../DataStruct/code/sqlist/unionlistTest.exe" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../java SE 学习.md" beforeDir="false" afterPath="$PROJECT_DIR$/../java SE 学习.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../sql/MYSQL必知必会.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../sql/MYSQL必知必会.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../计算机网络/计算机网络学习.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../计算机网络/计算机网络学习.md" afterDir="false" />
-    </list>
+    <list default="true" id="7bd0ce90-2b4d-420d-8256-8aec7978620b" name="更改" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -39,25 +28,25 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;v1.0&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/workspace/baseclass_guoxinan/class_html&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;vcs.Git&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;,
-    &quot;应用程序.FormatPrintStudy.executor&quot;: &quot;Run&quot;,
-    &quot;应用程序.MatcherStudy.executor&quot;: &quot;Run&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/workspace/PersonalStudyNote/javase/SECodeStudy",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "vcs.Git",
+    "vue.rearranger.settings.migration": "true",
+    "应用程序.FormatPrintStudy.executor": "Run",
+    "应用程序.MatcherStudy.executor": "Run"
   }
-}</component>
+}]]></component>
   <component name="RunManager" selected="应用程序.MatcherStudy">
     <configuration name="FormatPrintStudy" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="FormatPrintStudy" />
@@ -72,6 +61,17 @@
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
+    </configuration>
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="SECodeStudy" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="SECodeStudy" />
+      <option name="filePath" />
+      <method v="2" />
     </configuration>
     <recent_temporary>
       <list>
@@ -101,6 +101,7 @@
       <workItem from="1740379246242" duration="6242000" />
       <workItem from="1740448222303" duration="7085000" />
       <workItem from="1740540738182" duration="95000" />
+      <workItem from="1741239053274" duration="55000" />
     </task>
     <servers />
   </component>
