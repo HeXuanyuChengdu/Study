@@ -5173,3 +5173,674 @@ IDEA中可以右键自己的类
 	- 对于可能变化的类存在一个大的问题：如果多个线程试图同时更新一个对象，就会发生并发更改，其结果是不可预料的
 	- 尽可能地保持类是不可变地，对于表示值的类，这比较容易做到，对这个值的类进行计算，我们返回新的对象并不更新新的值
 	- 但是不可能所有类都是不可变的，让员工加薪时返回一个新的Employee对象很显然不符合逻辑
+
+## 第五章 继承
+
+**继承 *inheritance***：是OOP中的一个基本概念
+
+核心思想：基于已有的类创建新的类
+
+新的类可以继承旧类的方法，并拥有自己的字段和方法来适应新情况
+
+这是Java程序设计中的一种核心技术
+
+
+
+### 继承关系与聚合关系
+
+##### **里氏替换原则 *LSP***
+
+LSP的核心思路是：子类必须能够完全替代父类，并且父类的行为对子类合理
+
+经典的例子是类:Animal、Bird、Penguin
+
+`Animal`类只有动物的基本的属性：
+
+- 吃——eat
+- 喝——drink
+- 生孩子 ——produce
+
+类`Bird`很显然完全能够代表Animal，同时抽象的动物类中的行为对于鸟都是合理的，那么动物与鸟可以是继承关系
+
+但是类`Penguin`不考虑实际生物科学，仅从行为合理的角度考虑，`Bird`的行为飞——fly显然不适合企鹅，让企鹅继承鸟就不符合LSP
+
+##### 共享接口与重用实现
+
+- 继承适合的场景：
+
+	- 子类需要复用父类的代码(字段与方法)
+	- 子类需要与父类共享相同的接口 ——多态性
+
+- 聚合has -a 适合的场景：
+
+	- 对象需要组合多个独立的功能，而不是通过层级关系扩展
+
+- 例子：
+
+- ~~~java
+	class Square extends Shape{//
+	    @override
+	    public double calculateArea(){
+	        return this.length*this.length;
+	    }
+	}
+	~~~
+
+- 这里正方形与更笼统的图形，之间的关系，虽然从我们自然语言的角度思考，似乎可以说：“图形中有正方形”，好像是has-a关系
+
+- 但其实如果我们更加清晰地思考这句话的本质：“图形中有一种被称为正方形的图形”
+
+- ==>等价于“叫正方形的图形，是一种图形”
+
+- 是很明显的“is-a”关系
+
+- ~~~java
+	// 聚合：Car 使用 Engine 的功能，但 Engine 独立存在
+	class Car {
+	    private Engine engine;
+	    public Car(Engine engine) {
+	        this.engine = engine;
+	    }
+	}
+	~~~
+
+- 这里车与引擎很显然就是聚合关系了，从逻辑上也不可能说车是一种引擎
+
+##### 动态扩展行为
+
+动态扩展行为：将类的功能委托给其他对象(构成组合关系),从而允许在程序运行期间灵活的替换或调整这些功能
+
+这种设计方式的核心是解耦与灵活性
+
+###### 对比继承
+
+- 继承的局限性：
+	- 继承关系在编译时就会确定，子类一旦继承了父类，其行为在运行时无法修改
+- 组合的灵活性：
+	- 通过组合，一个类可以持有其他对象的引用，并在运行时动态的替换这些对象，从而改变自身行为
+	- 比如一个`Robat`类可以组合不同的`Weapon`对象，实现在运行时更换武器
+
+###### 实现动态行为
+
+（1）定义接口——实现对行为的抽象
+
+通过接口定义行为规范，具体实现由不同的类完成:
+
+~~~java
+//定义攻击行为的接口
+public interface AttackBehavior{
+    void attack();
+}
+
+//具体实现：使用剑攻击
+public class SwordAttack implements AttackBehavior{
+    @override
+    public void attack(){
+        System.out.println("用🗡攻击！");
+    }
+}
+
+//具体实现：用魔法攻击
+public class MagicAttack implements AttackBehavior{
+    @override
+    public void attack(){
+        System.out.println("🔥攻击！");
+    }
+}
+~~~
+
+(2)组合对象并委托行为
+
+在我们需要行为的类中持有接口类型的成员变量，并通过该变量调用具体行为：
+
+~~~java
+public class Robot{
+    //组合一个攻击行为对象，通过接口引用
+    private AttackBehavior attackBehavior;
+    
+    //注入攻击行为
+    public Character(AttackBehavior attackBehavior) {
+        this.attackBehavior = attackBehavior;
+    }
+    
+    
+    //动态切换攻击行为
+    public void setAttackBehavior(AttackBehavior attackBehvior){
+        this.attackBehavior = attackBehavior;
+    }
+    
+    //委托给攻击行为执行对象
+    public void performAttack(){
+        attackBehavior.attack();
+    }
+   
+}
+~~~
+
+(3) 在运行时动态改变行为
+
+通过替换组合的对象，实现行为的动态调整：
+
+~~~java
+public class Main {
+    public static void main(String[] args) {
+        // 初始使用剑攻击
+        Character knight = new Character(new SwordAttack());
+        knight.performAttack(); // 输出：🗡
+
+        // 运行时切换为魔法攻击
+        knight.setAttackBehavior(new MagicAttack());
+        knight.performAttack(); // 输出：🔥
+    }
+}
+~~~
+
+###### 动态行为的优势
+
+1. 符合开闭原则
+	- 无需修改现有代码即可扩展新功能
+	- 例如，新增一个`BowAttack`类实现`AttackBehavior`,直接注入即可使用
+2. 降低耦合
+	- `Robot`不依赖具体的攻击实现，只依赖接口
+	- 修改 `SwordAttack` 或 `MagicAttack` 的代码不会影响 `Robot`
+3. 支持运行时灵活性
+	- 根据场景可以动态的切换行为，例如游戏角色更换装备、支付系统切换支付方式
+
+###### 实际应用场景
+
+策略模式：
+
+场景：需要根据上下文选择不同 算法
+
+示例：排序算法(冒泡、快速)的动态切换
+
+~~~java
+// 定义排序策略接口
+public interface SortStrategy {
+    void sort(int[] array);
+}
+
+// 具体策略实现
+public class BubbleSort implements SortStrategy { /* ... */ }
+public class QuickSort implements SortStrategy { /* ... */ }
+
+// 上下文类（组合策略对象）
+public class Sorter {
+    private SortStrategy strategy;
+    public void setStrategy(SortStrategy strategy) {
+        this.strategy = strategy;
+    }
+    public void executeSort(int[] array) {
+        strategy.sort(array);
+    }
+}
+~~~
+
+状态模式：
+
+场景：对象的行为岁状态改变而改变
+
+示例：电梯的不同状态 运行中 停止 故障
+
+~~~java
+// 定义电梯状态接口
+public interface ElevatorState {
+    void handleRequest();
+}
+
+// 具体状态实现
+public class RunningState implements ElevatorState { /* ... */ }
+public class StoppedState implements ElevatorState { /* ... */ }
+
+// 电梯类（组合状态对象）
+public class Elevator {
+    private ElevatorState state;
+    public void setState(ElevatorState state) {
+        this.state = state;
+    }
+    public void request() {
+        state.handleRequest();
+    }
+}
+~~~
+
+注入依赖(我还没学习到JavaEE知识，这部分做了解，但是原理与上面的场景类似)：
+
+场景：通过外部容器管理对象依赖
+
+示例：Spring框架中的Bean注入
+
+~~~java
+// 服务接口
+public interface NotificationService {
+    void send(String message);
+}
+
+// 具体实现
+public class EmailService implements NotificationService { /* ... */ }
+public class SMSService implements NotificationService { /* ... */ }
+
+// 客户端类（组合服务对象）
+public class Client {
+    private NotificationService service;
+    // 通过构造函数注入依赖
+    public Client(NotificationService service) {
+        this.service = service;
+    }
+    public void doSomething() {
+        service.send("Hello!");
+    }
+}
+~~~
+
+###### 与继承的对比
+
+继承的静态性：
+
+~~~java
+// 静态继承：无法在运行时改变行为
+class Dog extends Animal {
+    void bark() { System.out.println("汪汪！"); }
+}
+
+// 如果想让 Dog 改为“喵喵叫”，必须创建新子类
+class CatDog extends Animal {
+    void bark() { System.out.println("喵喵！"); }
+}
+~~~
+
+组合的动态性：
+
+~~~java
+// 通过组合动态改变行为
+class Animal {
+    private SoundBehavior soundBehavior;
+    public void setSoundBehavior(SoundBehavior soundBehavior) {
+        this.soundBehavior = soundBehavior;
+    }
+    public void makeSound() {
+        soundBehavior.makeSound();
+    }
+}
+
+// 运行时切换
+Animal animal = new Animal();
+animal.setSoundBehavior(new DogSound()); // 汪汪！
+animal.makeSound();
+animal.setSoundBehavior(new CatSound()); // 喵喵！
+animal.makeSound();
+~~~
+
+###### 总结
+
+通过组合对象实现动态行为的核心思想是：
+
+1. 定义接口规范行为
+2. 委托给组合的对象执行具体操作
+3. 运行时替换组合对象以改变行为
+
+这种设计方式使得代码更灵活、可扩展，并符合面向对象设计原则（如开闭原则、单一职责原则）。在实际开发中，应优先考虑组合而非继承，尤其是在需要动态调整功能的场景中。
+
+##### 继承与聚合的抉择
+
+实际上，滥用继承可能导致高耦合，但是如果过度追求聚合，也可能导致代码冗余，无法满足多态需求
+
+![判断使用聚合流程](示意图/判断使用聚合流程.png)
+
+### 5.1 类、超类、子类
+
+业务中判断两个类是否应该有继承关系的一个比较常用的经验是寻找“is-a”关系
+
+“is-a”是继承关系的一个明显特征
+
+例如，公司中除了普通员工还需要新的员工——经理Manager，经理与员工之间存在is-a关系：所有的经理都是员工
+
+(注：实际生活中会有员工升职成经理、经理变成员工的复杂情况，这里是假定员工永远是员工，经理永远是经理)
+
+#### 5.1.1 定义子类
+
+使用关键字`extends`表示继承
+
+~~~java
+public class Manager extends Employee{
+    ...
+}
+~~~
+
+关键字`extends`指示正在构造的新类派生于一个已经存在的类
+
+已经存在的类称为超类或父类、基类
+
+新的类称为子类或派生类
+
+一般Java程序员习惯说超类与子类
+
+子类比超类拥有更多的功能，封装了更多的数据
+
+但是，从集合论的角度，新派生的类是旧的类的子集，旧类是新类的超集
+
+假设Manager比Employee多出一个字段：bound
+
+~~~java
+public class Manager extends Employee{
+    private BigDecimal bounds;
+    ....
+   	public void setBounds(double bounds){
+        this.bounds = BigDecimal.valueof(bounds);
+    }
+}
+~~~
+
+这里与正常的类没有太多区别，如果有一个Manager对象，它就可以使用setBounds方法
+
+但是
+
+Manager中没有显式的定义getName()、gettId()等方法，Manager对象仍然可以直接调用这些方法
+
+因为Manager类自动的从超类中继承了这些方法，同时也继承了字段
+
+一个Manager对象有name,salary,hireDay,id四个继承自超类的实例字段和自己创建的实例字段bound。
+
+Java规范指出：==声明为私有的类成员不会被这个类的子类继承==
+
+但这里这个继承的意思不是说Manager对象没有这些类成员，而是说Manager对象不能直接访问这些类成员
+
+也就是说：
+
+~~~java
+public class Manager extends Employee{
+    private BigDecimal bounds;
+    ....
+   	public void setBounds(double bounds){
+        this.bounds = BigDecimal.valueof(bounds);
+    }
+    ...
+    this.name.....//是错误的，Manager对象无法直接访问超类的私有字段
+    String name = this.getName(); //是可行的，得到的是this的Name
+}
+~~~
+
+这样的设计乍看似乎非常麻烦
+
+但其实这是封装的核心思想的体现
+
+这样设计有以下好处：
+
+- 隐藏实现细节
+
+	- 超类的内部状态是超类的实现细节，直接暴露会破坏封装性
+
+	- 假设：
+
+	- ~~~java
+		class BankAccount {
+		    private double balance;  // 私有字段，隐藏实现细节
+		
+		    public void deposit(double amount) {
+		        if (amount > 0) balance += amount;  // 通过方法控制逻辑
+		    }
+		}
+		
+		class SavingsAccount extends BankAccount {
+		    // 子类无法直接修改 balance，必须通过 deposit() 方法
+		}
+		~~~
+
+	- 这里，超类可以自由的修改balance的存储方式，比如修改成`BigDecimal`而无需通知子类
+
+- 保持数据一致性
+
+	- 通过公共方法访问字段，父类可以添加校验逻辑，避免非法操作
+
+	- 示例：如果子类直接修改`balance`，可能绕过超类的校验
+
+	- ~~~java
+		// 错误设计：允许子类直接访问 balance
+		class BankAccount {
+		    public double balance;  // 公开字段，危险！
+		}
+		
+		class SavingsAccount extends BankAccount {
+		    void withdraw(double amount) {
+		        balance -= amount;  // 可能使余额为负数
+		    }
+		}
+		~~~
+
+	- 正确设计：将字段设置为`prviate`，通过方法控制：
+
+	- ~~~java
+		class BankAccount{
+		    private double balance;
+		    
+		    public void withdraw(double amount){
+		        if(amount >0 && balance >= amount){
+		            balance -=amount;
+		        }
+		    }
+		}
+		~~~
+
+- 降低耦合度
+
+	- 如果子类直接依赖父类的字段实现细节，会导致紧耦合，如果超类修改字段名或类型，所有子类都需要同步修改
+	- 比如例子中超类将`balance`重命名为`accountBalance`，子类中所有直接访问`balance`的代码将全部报错
+
+#### 5.1.2 覆盖方法
+
+超类中的有些方法不一定对子类都适用，比如Manager类中的getSalary方法就应该返回薪水和奖金的总和
+
+为此，我们需要提供新的方法来**覆盖(*override*)**超类
+
+~~~java
+public class Manager extends Employee{
+    ...
+    @override
+    public double getSalary(){
+       return this.salary+this.bound;//错误，Manager不能直接访问salary字段
+    }
+}
+~~~
+
+这里，由于salary是继承自超类的字段，我们无法直接访问
+
+所以，我们需要适用公共接口，假设我们这样修改代码：
+
+~~~java
+public class Manager extends Employee{
+    ...
+    @override
+    public double getSalary(){
+       return this.getSalary()+this.bound();//错误，会无限递归
+    }
+}
+~~~
+
+似乎没有问题，但是要注意，我们本来就在重写getSalary方法，这样会导致无限的调用getSalary()直到程序崩溃
+
+总结下来，这里我们的目的是调用超类的getSalry()方法而不是当前的getSalary()方法
+
+这里，就需要使用一种特殊的关键字 **supper**
+
+`supper.getSalary()`表示调用超类Employee中的getSalary方法
+
+最终，将我们的getSalary()修改为：
+
+~~~java
+public double getSalary(){
+    return supper.getSalary()+this.bound;
+}
+~~~
+
+注意，从功能上看，supper与this有些类似
+
+但是两者有很大的区别，this的本质是对一个对象的引用，可以将this赋值给一个对象变量；
+
+但是supper只是一个关键字，只是编译器调用超类方法
+
+#### 5.1.3 子类构造器
+
+对于子类的构造器：
+
+~~~java
+class Manager extends Employee{
+    private double bounds;
+    ...
+    public Manager(String name,double salary,int year,int month,int day,double bounds){
+        supper(name,salary,year,month,day);
+        this.bounds = bounds;
+    }
+}
+~~~
+
+这里，`supper(name,salary,year,month,day)`表示调用超类的对应的构造器
+
+要时刻牢记，Manager类中构造器不能直接访问继承自超类的私有字段
+
+supper调用超类构造器必须是第一条语句
+
+如果子类构造对象时不显式的使用supper调用超类构造器，那么超类必须有一个无参数的构造器，这个构造器要在子类构造之前调用
+
+示例：主程序创建一个Employee数组，并创建两个普通员工一个经理，对所有对象的状态进行遍历：
+
+~~~java
+package inheritance;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Objects;
+
+public class ManagerTest {
+    public static void main(String[] args) {
+        Employee[] staff = new Employee[3];
+        staff[0] = new Employee("小明",75000,2024,12,31);
+        staff[1] = new Employee("王老五",80000,2024,7,15);
+        staff[2] = new Manager("王鑫",90000,2018,9,1);
+       // staff[2].setBound()
+        //Manager boss = staff[2];
+
+
+//        Manager[] managers = new Manager[3];
+//        Employee[] staff2 = managers;
+//        staff2[0] = new Employee(1000,2020,11,11);
+//        System.out.println(staff2[0]);
+
+        for (Employee e : staff) {
+            System.out.println(e);
+            e.raiseSalary(15);
+          // System.out.println("提升15%薪水后,"+e.getName()+"的薪水是"+e.getSalary());
+            System.out.printf("%s提升15%%薪水后，薪水为%,.2f\n",e.getName(),e.getSalary());
+        }
+
+    }
+
+}
+
+/**
+ * 一个{@code Employee}对象表示了一名普通员工，
+ * 拥有id，姓名，薪水。入职日期四个属性
+ */
+class Employee {
+    private static long nextId = 20250001;
+
+    private long id;
+    private String name;
+    private BigDecimal salary;
+    private LocalDate hireDay;
+
+    {
+        this.id = nextId;
+        nextId++;
+    }
+
+    public Employee( String name, double salary, int year,int month, int day) {
+        this.name = Objects.requireNonNull(name,"员工姓名不能为null!");
+        this.salary = BigDecimal.valueOf(salary);
+        this.hireDay = LocalDate.of(year, month, day);
+    }
+
+    public Employee(double salary, int year, int month, int day) {
+        this("Employee#"+nextId, salary,year,month,day);
+        this.id = nextId;
+        nextId++;
+    }
+
+
+
+    public long getId() {
+        return id;
+    }
+    public String getName() {
+        return name;
+    }
+    public double getSalary() {
+        return this.salary.doubleValue();
+    }
+    public LocalDate getHireDay() {
+        return hireDay;
+    }
+
+    /**
+     * 根据百分比提升员工的薪资，e.g.10代表提高10%
+     * @param byPercent 提升薪资的百分比
+     */
+    public void raiseSalary(int byPercent) {
+        double raise = salary.doubleValue() * byPercent / 100;
+        salary = salary.add(BigDecimal.valueOf(raise));
+    }
+
+    public String toString() {
+        return "Employee [id=" + id + ", name=" + name + ", salary=" + salary+ ", hireDay=" + hireDay + "]";
+    }
+
+}
+
+/**
+ * 一个{@code Manager}对象继承自Employee，代表经理员工
+ * 除了Employee的四种属性(姓名，ID，薪水，入职日期)外，还有一个额外的属性是经理独有的奖金
+ */
+class Manager extends Employee {
+    private BigDecimal bound;
+    public final double BASE_FOUND = 5000.0;
+
+    public Manager(String name, double salary,int year,int month, int day) {
+        super(name, salary, year, month, day);
+        this.bound = BigDecimal.valueOf(BASE_FOUND);
+    }
+
+    public double getBound() {
+        return bound.doubleValue();
+    }
+
+    public void setBound(double bound) {
+        this.bound = BigDecimal.valueOf(bound);
+    }
+
+    /**
+     * 由于经理的工资构成与普通的Employee不同，因此需要重写该方法
+     * 经理的工资为基本工资+奖金
+     * @return 经理工资的double值
+     */
+    @Override
+    public double getSalary() {
+        return super.getSalary()+this.bound.doubleValue();
+    }
+
+    /**
+     * 经历的工资计算方法不同，因为经理的工资要加上奖金部分
+     * @param byPercent 提升薪资的百分比
+     */
+    public void raiseSalary(int byPercent) {
+        double raise = (bound.doubleValue()+super.getSalary()) * byPercent / 100;
+        bound = bound.add(BigDecimal.valueOf(raise));
+    }
+
+    public String toString() {
+        return "Manager [id="+super.getId()+",name = "+super.getName()+",salary="+this.getSalary()
+                +",hireDay="+super.getHireDay()+ ",bound=" + bound + ", base=" + BASE_FOUND + "]";
+    }
+
+
+}	
+~~~
+
